@@ -1,6 +1,6 @@
 ;;; ts-fold-indicators.el --- Display indicators for folding range  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2021-2022  Shen, Jen-Chieh
+;; Copyright (C) 2021-2023  Shen, Jen-Chieh
 ;; Created date 2021-10-04 20:03:12
 
 ;; This file is NOT part of GNU Emacs.
@@ -278,7 +278,7 @@ Argument FOLDED holds folding state; it's a boolean."
   "Refresh indicators for all folding range."
   (when ts-fold-indicators-mode
     (ts-fold--ensure-ts
-      (when-let* ((node (treesit-buffer-root-node))
+      (when-let* ((node (ignore-errors (treesit-buffer-root-node)))
                   (patterns (seq-mapcat (lambda (fold-range) `((,(car fold-range)) @name))
                                         (alist-get major-mode ts-fold-range-alist)
                                         'vector))

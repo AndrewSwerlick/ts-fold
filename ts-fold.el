@@ -1,7 +1,7 @@
 ;;; ts-fold.el --- Code folding using tree-sitter  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2021  Junyi Hou
-;; Copyright (C) 2021-2022  Shen, Jen-Chieh
+;; Copyright (C) 2021-2023  Shen, Jen-Chieh
 
 ;; Created date 2021-08-11 14:12:37
 
@@ -133,6 +133,7 @@ the fold in a cons cell.  See `ts-fold-range-python' for an example."
 ;; (@* "Externals" )
 ;;
 
+(declare-function ts-fold-indicators-mode "ts-fold-indicators.el")
 (declare-function ts-fold-indicators-refresh "ts-fold-indicators.el")
 
 ;;
@@ -181,7 +182,7 @@ when in a mode ts-fold can act on."
 
 ;;;###autoload
 (define-minor-mode global-ts-fold-mode
-  "Use `ts-fold-mode' wherever possible"
+  "Use `ts-fold-mode' wherever possible."
   :group 'ts-fold
   :init-value nil
   :lighter nil
@@ -199,6 +200,14 @@ when in a mode ts-fold can act on."
   "Return non-nil if `ts-fold' has defined folds for MODE."
   (let ((mode (or mode major-mode)))
     (alist-get mode ts-fold-range-alist)))
+
+;;;###autoload
+(define-minor-mode ts-fold-line-comment-mode
+  "Enable line comment folding."
+  :group 'ts-fold
+  :init-value nil
+  (when (bound-and-true-p ts-fold-indicators-mode)
+    (ts-fold-indicators-refresh)))
 
 ;;
 ;; (@* "Core" )
@@ -410,7 +419,8 @@ For arguments NODE and OFFSET, see function `ts-fold-range-seq' for
 more information.
 
 Argument PREFIX is the comment prefix in string."
-  (when-let* ((first-node (ts-fold--continuous-node-prefix node prefix nil))
+  (when-let* ((ts-fold-line-comment-mode)  ; XXX: Check enabled!?
+              (first-node (ts-fold--continuous-node-prefix node prefix nil))
               (last-node (ts-fold--continuous-node-prefix node prefix t))
               (prefix-len (length prefix))
               (beg (+ (treesit-node-start first-node) prefix-len))
